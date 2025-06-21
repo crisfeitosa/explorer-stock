@@ -1,15 +1,23 @@
+import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
+import { api } from '../services/api';
 import { useAuth } from "../hooks/auth";
 import { USER_ROLE } from '../utils/roles';
 
-import { CustomerRoutes } from './customer.routes';
-import { AdminRoutes } from './admin.routes';
-import { SaleRoutes } from './sale.routes';
 import { AuthRoutes } from './auth.routes';
+import { SaleRoutes } from './sale.routes';
+import { AdminRoutes } from './admin.routes';
+import { CustomerRoutes } from './customer.routes';
 
 export function Routes() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    api
+      .get('/users/validated')
+      .catch((error) => signOut())
+  }, [])
 
   function AccessRoute() {
     switch (user.role) {
