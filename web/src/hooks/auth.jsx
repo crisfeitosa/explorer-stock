@@ -14,15 +14,16 @@ function AuthProvider({ children }) {
 
   async function signIn({ email, password }) {
     try {
-      const response = await api.post("sessions", { email, password });
-      const { token, user } = response.data;
+      const response = await api.post("sessions",
+        { email, password },
+        { withCredentials: true }
+      );
+
+      const { user } = response.data;
 
       localStorage.setItem("@estock:user", JSON.stringify(user));
-      localStorage.setItem("@estock:token", token);
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      setData({ token, user });
+      setData({ user });
 
     } catch (error) {
       if (error.response) {
@@ -34,24 +35,16 @@ function AuthProvider({ children }) {
   };
 
   function signOut() {
-    localStorage.removeItem("@estock:token");
     localStorage.removeItem("@estock:user");
 
     setData({});
   }
 
-
   useEffect(() => {
-    const token = localStorage.getItem("@estock:token");
     const user = localStorage.getItem("@estock:user");
 
-    if (token && user) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      setData({
-        token,
-        user: JSON.parse(user)
-      });
+    if (user) {
+      setData({ user: JSON.parse(user) });
     }
   }, []);
 
